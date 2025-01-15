@@ -1,0 +1,7 @@
+pandas==2.2.3
+sqlalchemy
+psycopg2-binary
+python-dotenv
+scikit-learn==1.5.2
+mlxtend==0.23.3
+notebook
