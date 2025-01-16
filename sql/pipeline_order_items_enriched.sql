@@ -2,6 +2,7 @@ BEGIN;
 
 TRUNCATE TABLE order_items_enriched;
 
+-- Prepare inventory items
 WITH inventory_items_brand_filled AS (
     SELECT 
         id,
