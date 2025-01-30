@@ -4,7 +4,8 @@ TRUNCATE TABLE users_enriched;
 
 WITH user_purchases AS (
     SELECT user_id, 
-        COUNT(*) AS purchases, 
+        COUNT(DISTINCT order_id) AS n_orders,
+        COUNT(*) AS n_order_items, 
         SUM(sale_price) AS revenue,
         MIN(created_at) AS first_purchase_date,
         MAX(created_at) AS last_purchase_date,
@@ -24,7 +25,8 @@ WITH user_purchases AS (
         ) AS country,
         u.city,
         u.traffic_source,
-        COALESCE(up.purchases, 0) AS purchases,
+        COALESCE(up.n_orders, 0) AS n_orders,
+        COALESCE(up.n_order_items, 0) AS n_order_items,
         COALESCE(up.revenue, 0) AS revenue,
         up.purchased_categories,
         u.created_at,
@@ -36,12 +38,13 @@ WITH user_purchases AS (
     ORDER BY created_at
 ), users_duplicates_merged AS (
     SELECT id, age, gender, country, city, traffic_source, 
-           purchases, revenue, purchased_categories,
+           n_orders, n_order_items, revenue, purchased_categories,
            created_at, first_purchase_date, last_purchase_date 
     FROM (
         SELECT
             id, email, age, gender, country, city, traffic_source,
-            SUM(purchases) OVER (PARTITION BY email) AS purchases,
+            SUM(n_orders) OVER (PARTITION BY email) AS n_orders,
+            SUM(n_order_items) OVER (PARTITION BY email) AS n_order_items,
             SUM(revenue) OVER (PARTITION BY email) AS revenue,
             ARRAY_AGG(unnested_purchased_cats) OVER (PARTITION BY email) AS purchased_categories,
             MIN(created_at) OVER (PARTITION BY email) AS created_at,
