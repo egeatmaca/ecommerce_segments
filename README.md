@@ -1,5 +1,7 @@
 # Ecommerce Dashboard
 
+*** In progress ***
+
 ## Getting Started
 1. Copy <code>.env.template</code> to <code>.env</code>.
 1. Copy <code>kaggle.json.template</code> to <code>kaggle.json</code>. Update with your Kaggle credentials.
