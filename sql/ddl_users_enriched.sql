@@ -11,5 +11,12 @@ CREATE TABLE users_enriched (
     purchased_categories VARCHAR(255)[],
     created_at TIMESTAMP,
     first_purchase_date TIMESTAMP,
-    last_purchase_date TIMESTAMP
+    last_purchase_date TIMESTAMP,
+    active_days INT,
+    inactive_days INT,
+    avg_days_to_order INT,
+    items_per_order INT,
+    avg_order_value FLOAT,
+    segment VARCHAR(255),
+    churn_flag VARCHAR(255)
 )
