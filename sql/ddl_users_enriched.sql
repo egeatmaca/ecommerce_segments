@@ -18,5 +18,6 @@ CREATE TABLE users_enriched (
     items_per_order INT,
     avg_order_value FLOAT,
     segment VARCHAR(255),
-    churn_flag VARCHAR(255)
+    segment_churn_limit FLOAT,
+    churn_status VARCHAR(255)
 )
