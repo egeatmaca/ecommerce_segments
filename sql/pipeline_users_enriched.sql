@@ -36,29 +36,36 @@ WITH user_purchases AS (
     LEFT JOIN user_purchases AS up
     ON u.id = up.user_id
     ORDER BY created_at
-), users_duplicates_merged AS (
-    SELECT id, age, gender, country, city, traffic_source, 
-           n_orders, n_order_items, revenue, purchased_categories,
-           created_at, first_purchase_date, last_purchase_date 
-    FROM (
-        SELECT
-            id, email, age, gender, country, city, traffic_source,
-            SUM(n_orders) OVER (PARTITION BY email) AS n_orders,
-            SUM(n_order_items) OVER (PARTITION BY email) AS n_order_items,
-            SUM(revenue) OVER (PARTITION BY email) AS revenue,
-            ARRAY_AGG(unnested_purchased_cats) OVER (PARTITION BY email) AS purchased_categories,
-            MIN(created_at) OVER (PARTITION BY email) AS created_at,
-            MIN(first_purchase_date) OVER (PARTITION BY email) AS first_purchase_date,
-            MAX(last_purchase_date) OVER (PARTITION BY email) AS last_purchase_date,
-            ROW_NUMBER() OVER (PARTITION BY email ORDER BY created_at DESC) AS backward_duplicate_number
-        FROM users_with_purchases
-        LEFT JOIN LATERAL UNNEST(purchased_categories) as unnested_purchased_cats ON true
-    )
-    WHERE backward_duplicate_number=1
+), users_merged AS (
+    SELECT DISTINCT ON (email)
+        id, gender, country, city, traffic_source,
+        FIRST_VALUE(age) OVER (PARTITION BY email ORDER BY created_at DESC) AS age,
+        SUM(n_orders) OVER (PARTITION BY email) AS n_orders,
+        SUM(n_order_items) OVER (PARTITION BY email) AS n_order_items,
+        SUM(revenue) OVER (PARTITION BY email) AS revenue,
+        MIN(created_at) OVER (PARTITION BY email) AS created_at,
+        MIN(first_purchase_date) OVER (PARTITION BY email) AS first_purchase_date,
+        MAX(last_purchase_date) OVER (PARTITION BY email) AS last_purchase_date
+    FROM users_with_purchases
+    ORDER BY email, created_at DESC
+), cat_purchases_merged AS (
+    SELECT DISTINCT ON (email)
+        id,
+        ARRAY_AGG(unnested_purchased_cats) OVER (PARTITION BY email) AS purchased_categories
+    FROM users_with_purchases
+    LEFT JOIN LATERAL UNNEST(purchased_categories) AS unnested_purchased_cats ON true
+    ORDER BY email, created_at DESC
+), users_preped AS (
+    SELECT um.id, um.age, um.gender, um.country, um.city, um.traffic_source,
+           um.n_orders, um.n_order_items, um.revenue, cpm.purchased_categories, 
+           um.created_at, um.first_purchase_date, um.last_purchase_date
+    FROM users_merged AS um
+    LEFT JOIN cat_purchases_merged AS cpm
+    ON um.id = cpm.id
 )
 
 INSERT INTO users_enriched 
-SELECT * FROM users_duplicates_merged;
+SELECT * FROM users_preped;
 
 COMMIT;
 
