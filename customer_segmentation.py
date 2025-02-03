@@ -50,10 +50,11 @@ def concat_customers(repeat_purchasers_segmented, one_off_customers, inactive_us
     return customers_segmented
 
 def segment_customers():
+    # Read data
     engine = get_engine()
     read_query = make_read_query(engine)
-
     users_enriched = read_query("SELECT * FROM users_enriched", verbose=False)
+    init_cols = users_enriched.columns
 
     # Split inactive, one-off and repeat customers
     repeat_purchasers, one_off_customers, inactive_users = split_customers(users_enriched)
@@ -77,7 +78,7 @@ def segment_customers():
     repeat_purchasers_segmented = concat_cols(repeat_purchasers, repeat_purchasers_lifetime)
 
     # Concat all customers
-    customers_segmented = concat_customers(repeat_purchasers_segmented, one_off_customers, inactive_users)
+    customers_segmented = concat_customers(repeat_purchasers_segmented, one_off_customers, inactive_users)[init_cols]
 
     # Write to DB
     with engine.connect() as conn:
