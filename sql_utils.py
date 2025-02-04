@@ -18,7 +18,7 @@ def get_engine(protocol=None, user=None, password=None, host=None, port=None, db
 
     return engine
 
-def make_read_query(engine):
+def make_read_query_func(engine):
     def read_query(query, verbose=True):
         if verbose:
             print(query, '\n')
