@@ -6,7 +6,7 @@ import os
 from sql_utils import get_engine, make_read_query_func
 
 
-CLTV_FEATURES = ['active_days', 'avg_days_to_order', 'avg_order_items', 'avg_item_value']
+CLUSTERING_FEATURES = ['active_days', 'avg_days_to_order', 'avg_order_items', 'avg_item_value']
 
 def load_cust_segment_pipe(model_path='./models/'):
     pipe_path = os.path.join(model_path, 'cust_segment_pipe.pkl')
@@ -40,7 +40,7 @@ def segment_customers():
     cust_segment_pipe, cust_segment_map = load_cust_segment_pipe()
     cust_segment_map = {int(k): v for k,v in cust_segment_map.items()}
 
-    X = repeat_purchasers[CLTV_FEATURES]
+    X = repeat_purchasers[CLUSTERING_FEATURES]
     repeat_purchasers['segment'] = cust_segment_pipe.predict(X)
     repeat_purchasers['segment'] = repeat_purchasers['segment'].map(cust_segment_map)
 
