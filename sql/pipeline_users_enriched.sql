@@ -106,8 +106,9 @@ users_with_lt_status AS (
     SELECT *,
         CASE
             WHEN n_orders = 0 THEN 'Inactive'
+            WHEN n_orders = 1 THEN 'One-Off Purchaser'
             WHEN inactive_days > avg_days_to_order + 2 * std_days_to_order THEN 'Churn Likely'
-            ELSE 'Active'
+            ELSE 'Repeat Purchaser'
         END AS lifetime_status
     FROM users_with_purchases
 )
