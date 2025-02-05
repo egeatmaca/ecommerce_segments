@@ -28,9 +28,9 @@ def segment_customers():
     init_cols = users_enriched.columns
 
     # Split inactive, one-off and repeat customers
-    inactive_users = users_enriched.loc[users_enriched.n_orders==0]
-    one_off_customers = users_enriched.loc[users_enriched.n_orders==1]
-    repeat_purchasers = users_enriched.loc[users_enriched.n_orders>1]
+    inactive_users = users_enriched.loc[users_enriched.n_orders==0].copy()
+    one_off_customers = users_enriched.loc[users_enriched.n_orders==1].copy()
+    repeat_purchasers = users_enriched.loc[users_enriched.n_orders>1].copy()
 
     # Add segments for inactive and one-off customers
     one_off_customers['segment'] = 'One-Off Customers'
@@ -45,9 +45,7 @@ def segment_customers():
     repeat_purchasers['segment'] = repeat_purchasers['segment'].map(cust_segment_map)
 
     # Concat all customers
-    customers_segmented = pd.concat([repeat_purchasers_segmented, 
-                                     one_off_customers, 
-                                     inactive_users])\
+    customers_segmented = pd.concat([repeat_purchasers, one_off_customers, inactive_users])\
                             .sort_values('created_at')[init_cols]
 
     # Write to DB

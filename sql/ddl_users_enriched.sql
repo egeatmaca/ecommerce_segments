@@ -17,10 +17,9 @@ CREATE TABLE users_enriched (
     avg_order_items INT,
     avg_item_value FLOAT,
     avg_order_value FLOAT,
-    purchased_categories VARCHAR(255)[],
-    first_order_n_items INT,
     first_order_value FLOAT,
     first_order_categories VARCHAR(255)[],
+    first_order_brands VARCHAR(255)[], 
     lifetime_status VARCHAR(255),
     segment VARCHAR(255)
 )
