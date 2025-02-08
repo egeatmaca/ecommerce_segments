@@ -25,7 +25,7 @@ def make_read_query_func(engine):
             
         with engine.connect() as conn:
             df = sqlio.read_sql_query(query, conn)
-
+        
         return df
-
+    
     return read_query

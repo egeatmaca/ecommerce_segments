@@ -1,7 +1,7 @@
 -- SELECT * FROM order_items_enriched LIMIT 100;
 -- SELECT COUNT(*) FROM order_items_enriched;
 
-SELECT * FROM users_enriched LIMIT 100;
+-- SELECT * FROM users_enriched LIMIT 1000;
 
 -- SELECT MAX(cat_count) 
 -- FROM (
