@@ -1,3 +1,13 @@
+CREATE TYPE order_item AS (
+    order_id INTEGER,
+    product_name TEXT,
+    department TEXT,
+    category TEXT,
+    brand TEXT,
+    sale_price FLOAT,
+    created_at TIMESTAMP
+);
+
 CREATE TABLE users_enriched (
     id INT NOT NULL PRIMARY KEY,
     age INT,
@@ -17,10 +27,8 @@ CREATE TABLE users_enriched (
     avg_order_items INT,
     avg_item_value FLOAT,
     avg_order_value FLOAT,
-    first_order_value FLOAT,
-    first_order_categories VARCHAR(255)[],
-    first_order_brands VARCHAR(255)[], 
+    order_items order_item[],
     segment VARCHAR(255),
     predicted_segment VARCHAR(255),
     lifetime_status VARCHAR(255)
-)
+);

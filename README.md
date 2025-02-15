@@ -1,6 +1,6 @@
 # Ecommerce Dashboard
 
-*** In progress ***
+**Work in progress...**
 
 ## Getting Started
 1. Copy <code>.env.template</code> to <code>.env</code>.

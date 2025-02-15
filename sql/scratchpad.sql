@@ -11,4 +11,6 @@
 -- ) LIMIT 100;
 
 -- DROP TABLE order_items_enriched;
+
 -- DROP TABLE users_enriched;
+-- DROP TYPE order_item;
