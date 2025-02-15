@@ -1,4 +1,4 @@
-# Ecommerce Dashboard
+# Ecommerce Segments
 
 **Work in progress...**
 
