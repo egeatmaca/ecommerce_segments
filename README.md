@@ -1,6 +1,8 @@
 # Ecommerce Segments
 
-**Work in progress...**
+**Customer Segmentation for Ecommerce Retargeting** 
+
+Work in progress...
 
 ## Getting Started
 1. Copy <code>.env.template</code> to <code>.env</code>.
