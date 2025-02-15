@@ -33,7 +33,7 @@ def segment_customers():
     repeat_purchasers = users_enriched.loc[users_enriched.n_orders>1].copy()
 
     # Add segments for inactive and one-off customers
-    one_off_customers['segment'] = 'One-Off Purchase'
+    one_off_customers['segment'] = 'One-Off Purchasers'
     inactive_users['segment'] = 'Never Ordered'
 
     # Cluster repeat customers & add churn status

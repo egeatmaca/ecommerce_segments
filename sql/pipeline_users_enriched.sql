@@ -100,17 +100,6 @@ users_with_purchases AS (
     LEFT JOIN email_first_orders AS fo
     ON u.email = fo.email
     ORDER BY created_at
-), 
--- Calculate usere lifetime status
-users_with_lt_status AS (
-    SELECT *,
-        CASE
-            WHEN n_orders = 0 THEN 'Inactive'
-            WHEN n_orders = 1 THEN 'One-Off Purchaser'
-            WHEN inactive_days > avg_days_to_order + 2 * std_days_to_order THEN 'Churn Likely'
-            ELSE 'Repeat Purchaser'
-        END AS lifetime_status
-    FROM users_with_purchases
 )
 
 INSERT INTO users_enriched (
@@ -119,8 +108,7 @@ INSERT INTO users_enriched (
     days_to_activation, active_days, inactive_days,
     avg_days_to_order, std_days_to_order, 
     n_orders, avg_order_items, avg_item_value, avg_order_value, 
-    first_order_value, first_order_categories, first_order_brands,
-    lifetime_status
+    first_order_value, first_order_categories, first_order_brands
 )
 SELECT id, age, gender, country, city, traffic_source,
     created_at, first_order_timestamp, last_order_timestamp, 
@@ -129,7 +117,7 @@ SELECT id, age, gender, country, city, traffic_source,
     n_orders, avg_order_items, avg_item_value, avg_order_value,
     first_order_value, first_order_categories, first_order_brands,
     lifetime_status
-FROM users_with_lt_status;
+FROM users_with_purchases;
 
 COMMIT;
 

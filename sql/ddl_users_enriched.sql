@@ -20,6 +20,7 @@ CREATE TABLE users_enriched (
     first_order_value FLOAT,
     first_order_categories VARCHAR(255)[],
     first_order_brands VARCHAR(255)[], 
-    lifetime_status VARCHAR(255),
-    segment VARCHAR(255)
+    segment VARCHAR(255),
+    predicted_segment VARCHAR(255),
+    lifetime_status VARCHAR(255)
 )
