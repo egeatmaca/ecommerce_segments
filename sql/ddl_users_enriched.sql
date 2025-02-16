@@ -28,7 +28,7 @@ CREATE TABLE users_enriched (
     avg_item_value FLOAT,
     avg_order_value FLOAT,
     order_items order_item[],
+    lifetime_status VARCHAR(255),
     segment VARCHAR(255),
-    predicted_segment VARCHAR(255),
-    lifetime_status VARCHAR(255)
+    predicted_segment VARCHAR(255)
 );

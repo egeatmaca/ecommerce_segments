@@ -10,17 +10,22 @@ WITH users_deduplicated AS (
     FROM users
     ORDER BY email, created_at DESC
 ), 
--- Agg. order item values by orders (including user emails)
-email_orders AS (
-    SELECT u.email, oie.order_id,
-        MIN(oie.created_at) AS created_at,
-        COUNT(*) AS n_order_items,
-        SUM(oie.sale_price) AS order_value
+-- Join emails to order items
+order_items_emails AS (
+    SELECT oie.*, u.email
     FROM order_items_enriched AS oie
     LEFT JOIN users AS u
     ON oie.user_id = u.id
-    GROUP BY u.email, oie.order_id
-    ORDER BY u.email, created_at
+    ORDER BY u.email, oie.created_at
+),
+-- Agg. order items by (email, order_id)
+email_orders AS (
+    SELECT email, order_id,
+        MIN(created_at) AS created_at,
+        COUNT(*) AS n_order_items,
+        SUM(sale_price) AS order_value
+    FROM order_items_emails
+    GROUP BY email, order_id
 ),
 -- Calculate time-to-order
 email_orders_times AS (
@@ -45,23 +50,21 @@ email_purchases AS (
     FROM email_orders_times
     GROUP BY email
 ),
--- Email order items
+-- Agg. items purchased by email
 email_order_items AS (
-    SELECT u.email,
+    SELECT email,
         ARRAY_AGG(
             ROW(
-                oie.order_id,
-                oie.product_name,
-                oie.product_department,
-                oie.product_category,
-                oie.product_brand,
-                oie.sale_price,
-                oie.created_at
+                order_id,
+                product_name,
+                product_department,
+                product_category,
+                product_brand,
+                sale_price,
+                created_at
             )::order_item
         ) AS order_items
-    FROM order_items_enriched AS oie
-    LEFT JOIN users AS u
-    ON oie.user_id = u.id
+    FROM order_items_emails
     GROUP BY email
 ),
 -- Join deduplicated users and values aggregated by emails
