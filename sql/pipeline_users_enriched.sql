@@ -16,6 +16,7 @@ order_items_emails AS (
     FROM order_items_enriched AS oie
     LEFT JOIN users AS u
     ON oie.user_id = u.id
+    WHERE oie.status <> 'Cancelled' AND oie.status <> 'Returned'
     ORDER BY u.email, oie.created_at
 ),
 -- Agg. order items by (email, order_id)
@@ -41,8 +42,9 @@ email_purchases AS (
     SELECT email,
         COUNT(DISTINCT order_id) AS n_orders,
         AVG(n_order_items) AS avg_order_items, 
-        SUM(order_value) / SUM(n_order_items) AS avg_item_value,
-        AVG(order_value) AS avg_order_value,
+        MAX(n_order_items) AS max_order_items, 
+        AVG(order_value) AS avg_order_value, 
+        MAX(order_value) AS max_order_value,
         MIN(created_at) AS first_order_timestamp,
         MAX(created_at) AS last_order_timestamp,
         AVG(days_to_order) AS avg_days_to_order,
@@ -53,6 +55,8 @@ email_purchases AS (
 -- Agg. items purchased by email
 email_order_items AS (
     SELECT email,
+        AVG(sale_price) AS avg_item_value,
+        MAX(sale_price) AS max_item_value,
         ARRAY_AGG(
             ROW(
                 order_id,
@@ -96,8 +100,11 @@ users_with_purchases AS (
         p.std_days_to_order,
         COALESCE(p.n_orders, 0) AS n_orders,
         p.avg_order_items AS avg_order_items,
-        p.avg_item_value AS avg_item_value,
+        p.max_order_items AS max_order_items,
+        oi.avg_item_value AS avg_item_value,
+        oi.max_item_value AS max_item_value,
         p.avg_order_value AS avg_order_value,
+        p.max_order_value AS max_order_value,
         oi.order_items AS order_items
     FROM users_deduplicated AS u
     LEFT JOIN email_purchases AS p
@@ -112,14 +119,16 @@ INSERT INTO users_enriched (
     created_at, first_order_timestamp, last_order_timestamp, 
     days_to_activation, active_days, inactive_days,
     avg_days_to_order, std_days_to_order, 
-    n_orders, avg_order_items, avg_item_value, avg_order_value, 
+    n_orders, avg_order_items, max_order_items, avg_item_value, 
+    max_item_value, avg_order_value, max_order_value,
     order_items
 )
 SELECT id, age, gender, country, city, traffic_source,
     created_at, first_order_timestamp, last_order_timestamp, 
     days_to_activation, active_days, inactive_days,
     avg_days_to_order, std_days_to_order, 
-    n_orders, avg_order_items, avg_item_value, avg_order_value,
+    n_orders, avg_order_items, max_order_items, avg_item_value, 
+    max_item_value, avg_order_value, max_order_value,
     order_items
 FROM users_with_purchases;
 
