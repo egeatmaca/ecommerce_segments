@@ -3,7 +3,7 @@ FROM postgres:17.2
 RUN apt-get update &&\
     apt-get install -y python3 python3-venv python3-pip unzip
 
-COPY kaggle.json ~/.kaggle/kaggle.json
+COPY kaggle.json /root/.kaggle/kaggle.json
 
 RUN python3 -m venv ./venv
 

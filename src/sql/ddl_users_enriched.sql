@@ -28,10 +28,17 @@ CREATE TABLE users_enriched (
     max_order_items INT,
     avg_item_value FLOAT,
     max_item_value FLOAT,
-    avg_order_value FLOAT,
-    max_order_value FLOAT,
+    avg_order_value FLOAT, 
+    max_order_value FLOAT, 
+    n_categories INT,
+    fav_category VARCHAR(255),
+    fav_cat_purchases FLOAT,
+    fav_cat_avg_item_value FLOAT,
+    fav_cat_freq_strength FLOAT,
+    fav_cat_spending_strength FLOAT,
     order_items order_item[],
-    lifetime_status VARCHAR(255),
     loyalty_segment VARCHAR(255),
-    order_value_segment VARCHAR(255)
+    order_value_segment VARCHAR(255),
+    category_choice_segment VARCHAR(255),
+    lifetime_status VARCHAR(255)
 );

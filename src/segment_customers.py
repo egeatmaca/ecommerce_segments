@@ -8,7 +8,7 @@ from sql_utils import get_engine, make_read_query_func
 
 CLUSTERING_FEATURES = ['n_orders', 'avg_days_to_order', 'avg_order_items', 'avg_item_value']
 
-def load_cust_segment_pipe(model_path='./models/'):
+def load_cust_segment_pipe(model_path='../models/'):
     pipe_path = os.path.join(model_path, 'cust_segment_pipe.pkl')
     map_path = os.path.join(model_path, 'cust_segment_map.json')
 
