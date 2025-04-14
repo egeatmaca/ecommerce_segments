@@ -5,10 +5,15 @@ from torch.utils.data import DataLoader
 import numpy as np
 
 
-class Autoencoder(nn.Module):
+class AutoEncoder(nn.Module):
     def __init__(self, input_dim: int, hidden_dims: list[int], latent_dim: int) -> None:
         super().__init__()
-        
+        encoder_layers, decoder_layers = self.make_layers(input_dim, hidden_dims, latent_dim) 
+        self.encoder = nn.Sequential(*encoder_layers)
+        self.decoder = nn.Sequential(*decoder_layers)
+
+    @staticmethod
+    def make_layers(input_dim: int, hidden_dims: list[int], latent_dim: int) -> list[nn.Module]:
         dims = [input_dim] 
         if type(hidden_dims) == list:
             dims += hidden_dims
@@ -31,20 +36,19 @@ class Autoencoder(nn.Module):
 
             last_dim = dim
 
-        decoder_layers = reversed(decoder_layers) 
-        
-        self.encoder = nn.Sequential(*encoder_layers)
-        self.decoder = nn.Sequential(*decoder_layers)
- 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        decoder_layers = reversed(decoder_layers)  
+
+        return encoder_layers, decoder_layers
+
+    def forward(self, x: torch.Tensor) -> (torch.Tensor, torch.Tensor):
         encoded = self.encoder(x)
         decoded = self.decoder(encoded)
         return encoded, decoded
 
 
-class AutoencoderTrainer:
+class AETrainer:
     def __init__(self, 
-                 model: Autoencoder,
+                 model: nn.Module,
                  criterion: nn.modules.loss._Loss = nn.MSELoss(),
                  optimizer_class: torch.optim.Optimizer = torch.optim.Adam,
                  lr: float = 0.001,
