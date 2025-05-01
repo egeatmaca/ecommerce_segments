@@ -6,21 +6,38 @@ import os
 from sql_utils import get_engine, make_read_query_func
 
 
-CLUSTERING_FEATURES = ['n_orders', 'avg_days_to_order', 'avg_order_items', 'avg_item_value']
+FEATURES = {
+    'loyalty': ['n_orders', 'avg_days_to_order'],
+    'order_value': ['avg_order_items', 'max_order_items', 'avg_item_value', 'max_item_value'],
+}
 
-def load_cust_segment_pipe(model_path='../models/'):
-    pipe_path = os.path.join(model_path, 'cust_segment_pipe.pkl')
-    map_path = os.path.join(model_path, 'cust_segment_map.json')
+
+def load_segmentation_pipe(pipe_name, model_path='./models/'):
+    pipe_path = os.path.join(model_path, pipe_name+'_segment_pipe.pkl')
+    map_path = os.path.join(model_path, pipe_name+'_segment_map.json')
 
     with open(pipe_path, 'rb') as f:
-        cust_segment_pipe = pkl.load(f)
+        segment_pipe = pkl.load(f)
 
     with open(map_path, 'r') as f:
-        cust_segment_map = json.load(f)
+        segment_map = json.load(f)
 
-    return cust_segment_pipe, cust_segment_map
+    return segment_pipe, segment_map
 
-def segment_customers():
+def segment_customers(repeat_purchasers, pipe_name):
+    segment_pipe, segment_map = load_segmentation_pipe(pipe_name)
+    segment_map = {int(k): v for k,v in segment_map.items()}
+
+    repeat_purchasers = repeat_purchasers.copy() 
+    X = repeat_purchasers[FEATURES[pipe_name]]
+
+    segment_col = pipe_name+'_segment'
+    repeat_purchasers[segment_col] = segment_pipe.predict(X)
+    repeat_purchasers[segment_col] = repeat_purchasers[segment_col].map(segment_map)
+
+    return repeat_purchasers
+
+def main():
     # Read data
     engine = get_engine()
     read_query = make_read_query_func(engine)
@@ -33,17 +50,13 @@ def segment_customers():
     repeat_purchasers = users_enriched.loc[users_enriched.n_orders>1].copy()
 
     # Add segments for inactive and one-off customers
-    one_off_customers['segment'] = 'One-Off Purchasers'
-    inactive_users['segment'] = 'Never Ordered'
+    one_off_customers['loyalty_segment'] = 'One-Off Purchasers'
+    inactive_users['loyalty_segment'] = 'Never Ordered'
 
-    # Cluster repeat customers & add churn status
-    cust_segment_pipe, cust_segment_map = load_cust_segment_pipe()
-    cust_segment_map = {int(k): v for k,v in cust_segment_map.items()}
-
-    X = repeat_purchasers[CLUSTERING_FEATURES]
-    repeat_purchasers['segment'] = cust_segment_pipe.predict(X)
-    repeat_purchasers['segment'] = repeat_purchasers['segment'].map(cust_segment_map)
-
+    # Cluster repeat purchasers
+    repeat_purchasers = segment_customers(repeat_purchasers, 'loyalty')
+    repeat_purchasers = segment_customers(repeat_purchasers, 'order_value')
+    
     # Concat all customers
     customers_segmented = pd.concat([repeat_purchasers, one_off_customers, inactive_users])\
                             .sort_values('created_at')[init_cols]
@@ -56,4 +69,4 @@ def segment_customers():
 
 
 if __name__ == '__main__':
-    segment_customers()
+    main()

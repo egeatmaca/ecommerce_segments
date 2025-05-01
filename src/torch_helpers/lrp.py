@@ -72,12 +72,6 @@ class RelevancePropagationLinear(nn.Module):
 
 
 class RelevancePropagationReLU(nn.Module):
-    """Layer-wise relevance propagation for ReLU activation.
-
-    Passes the relevance scores without modification. Might be of use later.
-
-    """
-
     def __init__(self, layer: torch.nn.ReLU, top_k: float = 0.0) -> None:
         super().__init__()
 

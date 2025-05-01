@@ -23,8 +23,9 @@ class AutoEncoder(nn.Module):
                     decoder_layers.append(nn.ReLU())
             
             in_dim = dim
-            
-        decoder_layers = reversed(decoder_layers)  
+
+        decoder_layers = list(reversed(decoder_layers))
+        decoder_layers.append(nn.Sigmoid())
 
         self.encoder = nn.Sequential(*encoder_layers)
         self.decoder = nn.Sequential(*decoder_layers)
@@ -38,7 +39,7 @@ class AutoEncoder(nn.Module):
 class AETrainer:
     def __init__(self, 
                  model: nn.Module,
-                 criterion: nn.modules.loss._Loss = nn.MSELoss(),
+                 criterion: nn.modules.loss._Loss = nn.BCELoss(),
                  optimizer_class: torch.optim.Optimizer = torch.optim.Adam,
                  lr: float = 0.001,
                  lr_reduce_factor: float = 0.5,
